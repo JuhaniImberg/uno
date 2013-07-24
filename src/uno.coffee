@@ -27,7 +27,7 @@ path = require("path")
 stdin = process.openStdin()
 
 stdin.addListener("data", (d) ->
-	message = d.toString().substring(0, d.length-2)
+	message = d.toString().replace(/(\r\n|\n|\r)/gm,"") #.substring(0, d.length-2)
 	if message.indexOf(".") == 0
 		irc.command(message.substring(1))
 	else
@@ -46,11 +46,18 @@ irc.loadConfig = (callback) ->
 
 
 irc.modules = []
+
+irc.loadAllModules = () ->
+	files = fs.readdirSync(irc.config.modulePath)
+	for i in files
+		name = i.split(".")[0]
+		irc.loadModule(name)
+
 irc.loadModule = (name) ->
 	try
 		console.log("LOADING MODULE "+name)
 		module = require(path.resolve(
-			irc.config.modulePath,name+".module.js"
+			irc.config.modulePath, name+".module.js"
 		))[name]
 		module.init(irc)
 		this.modules.push({name: name, module: module})
@@ -66,10 +73,13 @@ irc.reloadModules = () ->
 
 			i.module.deinit(irc)
 			delete require.cache[path.resolve(
-				irc.config.modulePath,i.name+".module.js"
+				irc.config.modulePath, i.name+".module.js"
 			)]
 
-			module = require("./"+i.name+".module.js")[i.name]
+			module = require(path.resolve(
+				irc.config.modulePath, i.name+".module.js"
+			))[i.name]
+
 			module.init(irc)
 			i.module = module
 
@@ -208,6 +218,6 @@ irc.handleMessage = (message) ->
 			irc.fire('PRIVMSG', args)
 
 irc.loadConfig(() ->
-	irc.loadModule("mui")
+	irc.loadAllModules()
 	irc.connect()
 )

@@ -19,25 +19,20 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###
 
-mui = () ->
+dice = () ->
 	o = {}
-	o.lastTime = 0
 	o.hookId = -1
 	o.init = (irc) ->
 		o.hookId = irc.hook('PRIVMSG', (args) ->
-			if args.message.toLowerCase().substring(0,4) == "mui."
-				now = Date.now()
-				if now - 10000 < o.lastTime
-					return
-				o.lastTime = now
-				if args.message.toLowerCase().split(" ")[1] == irc.config.nick
-					irc.send('PRIVMSG', args.respond, ':Mui. '+args.sender)
-				else
-					irc.send('PRIVMSG', args.respond, ':Mui.')
+			msg = args.message.toLowerCase().split(" ")
+			if msg[0] == irc.config.commandPrefix+"roll"
+				irc.send('PRIVMSG', args.respond, 
+					''+Math.floor((Math.random()*6)+1))
+				
 		)
 	o.deinit = (irc) ->
 		irc.dehook(this.hookId)
 
 	return o
 
-exports.mui = new mui
+exports.dice = new dice

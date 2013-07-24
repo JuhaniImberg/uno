@@ -3,5 +3,6 @@
 	"realname": "Uno Not One",
 	"network": "irc.paivola.fi:6667",
 	"encoding": "utf8",
-	"autojoin": ["#uno"]
+	"autojoin": ["#uno"],
+	"commandPrefix": "-"
 }
