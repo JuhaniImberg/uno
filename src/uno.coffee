@@ -11,34 +11,91 @@ stdin.addListener("data", (d) ->
 		irc.send(message)
 )
 
-irc = {buffer: "", hooks: []}
+irc = {buffer: "", hooks: [], hid: 0}
 
 irc.config = {
 	nick: "uno",
 	realname: "Uno Not One",
 	network: "irc.paivola.fi:6667",
 	encoding: "utf8",
+	modulePath: "C:\\Users\\juhani\\uno\\lib\\",
+	autojoin: ["#uno"]
 }
 
+irc.modules = []
+irc.loadModule = (name) ->
+	try
+		console.log("LOADING MODULE "+name)
+		module = require("./"+name+".module.js")[name]
+		module.init(irc)
+		this.modules.push({name: name, module: module})
+		console.log("LOADED MODULE "+name)
+	catch error
+		console.log("ERROR #{error}")
+
+irc.reloadModules = () ->
+	console.log("RELOADING MODULES")
+	for i in this.modules
+		console.log("RELOADING MODULE "+i.name)
+
+		console.log(irc.hooks)
+
+		i.module.deinit(irc)
+
+		console.log(irc.hooks)
+
+		#console.log(require.cache)
+		delete require.cache[irc.config.modulePath+i.name+".module.js"]
+		#console.log(require.cache)
+
+		module = require("./"+i.name+".module.js")[i.name]
+		module.init(irc)
+
+		console.log(irc.hooks)
+
+		i.module = module
+		console.log("RELOADED MODULE "+i.name)
+
 irc.hook = (action, callback) ->
-	this.hooks.push({callback: callback, action: action})
+	this.hooks.push({callback: callback, action: action, hookId: ++irc.hid})
+	return irc.hid
+
+irc.dehook = (hookId) ->
+	offset = 0
+	for i in this.hooks
+		if i.hookId == hookId
+			break
+		offset++
+	if this.hooks[offset].hookId = hookId
+		this.hooks.splice(offset,1)
 
 irc.fire = (action, args) ->
 	for i in this.hooks
-		if i.action == action
-			i.callback(args)
+		try
+			if i.action == action
+				i.callback(args)
+		catch error
+			console.log("ERROR #{error}")
 
 irc.command = (com) ->
 	console.log("command "+com)
+	com = com.split(" ")
 	command = com[0].toLowerCase()
 	args = com[1..]
 	switch command
 		when 'q', 'e', 'quit', 'exit'
 			irc.send("QUIT")
-		when 'r', 'c', 'reconnect', 'connect'
+			process.exit(0);
+		when 'c', 'reconnect', 'connect'
 			irc.connect()
+		when 'r', 'reload', 'reloadmodules'
+			irc.reloadModules()
 		when 'name', 'nick', 'rename', 'renick'
 			irc.name(args[0])
+		when 'load', 'l'
+			irc.loadModule(args[0])
+		when 'join', 'j'
+			irc.send('JOIN',args[0])
 
 irc.name = (newName) ->
 	this.send('NICK '+newName)
@@ -86,6 +143,8 @@ irc.socket.on('connect', () ->
 	irc.send('NICK '+irc.config.nick)
 	irc.send('USER',irc.config.nick,'0 *:'+irc.config.nick,
 	irc.config.realname)
+	for i in irc.config.autojoin
+		irc.send('JOIN',i)
 )
 
 irc.socket.on('data', (data) ->
@@ -113,22 +172,20 @@ irc.handleMessage = (message) ->
 			chat =  message.params[1]
 			reciever = message.params[0]
 			sender = message.prefix.split("!")[0].substring(1)
+			isChannel = reciever.indexOf("#") == 0
+			respond = if isChannel then reciever else sender
 
 			args = {
 				message: chat,
 				sender: sender,
 				reciever: reciever,
-				isChannel: reciever.indexOf("#") == 0,
+				isChannel:isChannel,
+				prefix: message.prefix,
+				respond: respond
 			}
 
 			irc.fire('PRIVMSG', args)
 
-irc.hook('PRIVMSG', (args) ->
-	if args.message.toLowerCase().substring(0,4) == "mui."
-		if args.message.toLowerCase().split(" ")[1] == irc.config.nick
-			irc.send('PRIVMSG', args.reciever, ':Mui. '+args.sender)
-		else
-			irc.send('PRIVMSG', args.reciever, ':Mui.')
-)
+irc.loadModule("mui")
 
 irc.connect()
