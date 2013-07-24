@@ -21,11 +21,19 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 dice = () ->
 	o = {}
+
+	o.info = {}
+	o.info.name = "Dice"
+	o.info.description = "Rolls a dice"
+	o.info.author = "Juhani Imberg"
+	o.info.version = 1	
+	
 	o.hookId = -1
 	o.init = (irc) ->
 		o.hookId = irc.hook('PRIVMSG', (args) ->
 			msg = args.message.toLowerCase().split(" ")
-			if msg[0] == irc.config.commandPrefix+"roll"
+			prefix = irc.config.commandPrefix
+			if msg[0] == prefix+"roll" || msg[0] == prefix+"dice"
 				irc.send('PRIVMSG', args.respond, 
 					''+Math.floor((Math.random()*6)+1))
 				

@@ -21,6 +21,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 mui = () ->
 	o = {}
+	
+	o.info = {}
+	o.info.name = "Mui."
+	o.info.description = "Responds with \"Mui.\" to people who say \"Mui.\""
+	o.info.author = "Juhani Imberg"
+	o.info.version = 1	
+
 	o.lastTime = 0
 	o.hookId = -1
 	o.init = (irc) ->

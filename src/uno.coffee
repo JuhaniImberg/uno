@@ -127,6 +127,10 @@ irc.command = (com) ->
 			irc.loadModule(args[0])
 		when 'join', 'j'
 			irc.send('JOIN',args[0])
+		when 'hr', 'hardreset'
+			irc.modules = []
+			irc.hooks = []
+			irc.loadAllModules()
 
 irc.name = (newName) ->
 	this.send('NICK '+newName)
