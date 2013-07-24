@@ -13,5 +13,3 @@ Dependencies
 
 	node.js
 	coffeescript (development only)
-
-isitfixed
