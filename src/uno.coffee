@@ -206,7 +206,7 @@ irc.handleMessage = (message) ->
 		when 'PRIVMSG'
 			chat =  message.params[1]
 			reciever = message.params[0]
-			sender = message.prefix.split("!")[0].substring(1)
+			sender = message.prefix.split("!")[0].replace("~","").substring(1)
 			isChannel = reciever.indexOf("#") == 0
 			respond = if isChannel then reciever else sender
 
@@ -220,6 +220,28 @@ irc.handleMessage = (message) ->
 			}
 
 			irc.fire('PRIVMSG', args)
+
+		when 'JOIN'
+			where = message.params[0]
+			who = message.prefix.split("!")[0].replace("~","").substring(1)
+			args = {
+				where: where,
+				who: who
+			}
+
+			irc.fire('JOIN', args)
+
+		when 'PART'
+			where = message.params[0]
+			why = message.params[1]
+			who = message.prefix.split("!")[0].replace("~","").substring(1)
+			args = {
+				where: where,
+				who: who,
+				why: why
+			}
+
+			irc.fire('PART', args)
 
 irc.loadConfig(() ->
 	irc.loadAllModules()

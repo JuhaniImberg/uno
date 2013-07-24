@@ -53,6 +53,9 @@ help = () ->
 					mods = mods.join(", ")
 					irc.send('PRIVMSG', args.respond, 
 						'loaded modules: '+mods)
+					irc.send('PRIVMSG', args.respond, 
+						'additional help: '+prefix+'help [modules name]')
+					
 					
 		)
 	o.deinit = (irc) ->

@@ -19,35 +19,25 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###
 
-mui = () ->
+hello = () ->
 	o = {}
 
 	o.info = {}
-	o.info.name = "Mui."
-	o.info.description = "Responds with \"Mui.\" to people who say \"Mui.\""
+	o.info.name = "Hello"
+	o.info.description = "Welcomes people onto a channel"
 	o.info.author = "Juhani Imberg"
 	o.info.version = 1	
-
-	o.lastTime = 0
+	
 	o.hookId = -1
 	o.init = (irc) ->
-		o.hookId = irc.hook('PRIVMSG', (args) ->
-			msg = args.message.toLowerCase().split(" ")
-			if msg[0] == "mui."
-				now = Date.now()
-				if now - 10000 < o.lastTime
-					return
-				o.lastTime = now
-				if msg[1] == irc.config.nick
-					irc.send('PRIVMSG', args.respond, ':Mui. '+args.sender)
-				else if msg[1]
-					return
-				else
-					irc.send('PRIVMSG', args.respond, ':Mui.')
+		o.hookId = irc.hook('JOIN', (args) ->
+			irc.send('PRIVMSG', args.where, 
+				'Welcome to '+args.where+' '+args.who+'!')
+				
 		)
 	o.deinit = (irc) ->
 		irc.dehook(this.hookId)
 
 	return o
 
-exports.mui = new mui
+exports.hello = new hello
