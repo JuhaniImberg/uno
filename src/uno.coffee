@@ -21,6 +21,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 net = require("net")
 sys = require("sys")
+fs = require("fs")
+path = require("path")
 
 stdin = process.openStdin()
 
@@ -34,20 +36,22 @@ stdin.addListener("data", (d) ->
 
 irc = {buffer: "", hooks: [], hid: 0}
 
-irc.config = {
-	nick: "uno",
-	realname: "Uno Not One",
-	network: "irc.paivola.fi:6667",
-	encoding: "utf8",
-	modulePath: "C:\\Users\\juhani\\uno\\lib\\",
-	autojoin: ["#uno"]
-}
+irc.config = {}
+
+irc.loadConfig = (callback) ->
+	config = require(path.resolve(__dirname,'..','config.json'))
+	irc.config = config
+	irc.config.modulePath = path.resolve(__dirname,'modules')
+	callback()
+
 
 irc.modules = []
 irc.loadModule = (name) ->
 	try
 		console.log("LOADING MODULE "+name)
-		module = require("./"+name+".module.js")[name]
+		module = require(path.resolve(
+			irc.config.modulePath,name+".module.js"
+		))[name]
 		module.init(irc)
 		this.modules.push({name: name, module: module})
 		console.log("LOADED MODULE "+name)
@@ -57,25 +61,21 @@ irc.loadModule = (name) ->
 irc.reloadModules = () ->
 	console.log("RELOADING MODULES")
 	for i in this.modules
-		console.log("RELOADING MODULE "+i.name)
+		try
+			console.log("RELOADING MODULE "+i.name)
 
-		console.log(irc.hooks)
+			i.module.deinit(irc)
+			delete require.cache[path.resolve(
+				irc.config.modulePath,i.name+".module.js"
+			)]
 
-		i.module.deinit(irc)
+			module = require("./"+i.name+".module.js")[i.name]
+			module.init(irc)
+			i.module = module
 
-		console.log(irc.hooks)
-
-		#console.log(require.cache)
-		delete require.cache[irc.config.modulePath+i.name+".module.js"]
-		#console.log(require.cache)
-
-		module = require("./"+i.name+".module.js")[i.name]
-		module.init(irc)
-
-		console.log(irc.hooks)
-
-		i.module = module
-		console.log("RELOADED MODULE "+i.name)
+			console.log("RELOADED MODULE "+i.name)
+		catch error
+			console.log("ERROR #{error}")	
 
 irc.hook = (action, callback) ->
 	this.hooks.push({callback: callback, action: action, hookId: ++irc.hid})
@@ -207,6 +207,7 @@ irc.handleMessage = (message) ->
 
 			irc.fire('PRIVMSG', args)
 
-irc.loadModule("mui")
-
-irc.connect()
+irc.loadConfig(() ->
+	irc.loadModule("mui")
+	irc.connect()
+)
