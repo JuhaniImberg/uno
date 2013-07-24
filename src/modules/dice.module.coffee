@@ -34,8 +34,9 @@ dice = () ->
 			msg = args.message.toLowerCase().split(" ")
 			prefix = irc.config.commandPrefix
 			if msg[0] == prefix+"roll" || msg[0] == prefix+"dice"
-				irc.send('PRIVMSG', args.respond, 
-					''+Math.floor((Math.random()*6)+1))
+				random = Math.floor((Math.random()*6)+1)
+				irc.send('PRIVMSG', args.respond, irc.colorize.escape(
+					''+random, 30+random))
 				
 		)
 	o.deinit = (irc) ->

@@ -24,7 +24,8 @@ help = () ->
 	getInfo = (irc, what) ->
 		for i in irc.modules
 			if i.name == what
-				return i.module.info.name+": "+i.module.info.description
+				return i.module.info.name+": "+i.module.info.description+"
+ Author: "+i.module.info.author+" (V"+i.module.info.version+")"
 
 	o = {}
 
@@ -39,7 +40,7 @@ help = () ->
 		o.hookId = irc.hook('PRIVMSG', (args) ->
 			msg = args.message.toLowerCase().split(" ")
 			prefix = irc.config.commandPrefix
-			if msg[0] == prefix+"help"
+			if msg[0] == prefix+"help" || msg[0] == prefix+"info"
 
 				mods = []
 				for i in irc.modules
@@ -54,7 +55,7 @@ help = () ->
 					irc.send('PRIVMSG', args.respond, 
 						'loaded modules: '+mods)
 					irc.send('PRIVMSG', args.respond, 
-						'additional help: '+prefix+'help [modules name]')
+						'additional info: '+prefix+'info [modules name]')
 					
 					
 		)

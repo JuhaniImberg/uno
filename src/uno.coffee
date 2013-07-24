@@ -23,6 +23,10 @@ net = require("net")
 sys = require("sys")
 fs = require("fs")
 path = require("path")
+colorize = require("./colorize.js")['colorize']
+http = require("http")
+https = require("https")
+url = require("url")
 
 stdin = process.openStdin()
 
@@ -35,6 +39,11 @@ stdin.addListener("data", (d) ->
 )
 
 irc = {buffer: "", hooks: [], hid: 0}
+
+irc.colorize = colorize
+irc.http = http
+irc.https = https
+irc.url = url
 
 irc.config = {}
 
