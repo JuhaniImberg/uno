@@ -57,15 +57,14 @@ url = () ->
 
 					res.on('end', () ->
 						body = str
-						console.log(body)
 						try
-							reg = /(<\s*(title|TITLE)[^>]*>(.+?)<\s*\/\s*(title|TITLE))>/g
+							reg = /<title[^>]*>([^<]+)<\/title>/im
 							title = body.match(reg)[0]+""
 							title = title.split(">")[1]
 							title = title.split("</")[0]
 							console.log(title)
 							irc.send('PRIVMSG', args.respond,
-								':{Title: \''+title+'\'}'
+								':{title: \''+unescape(title)+'\'}'
 							)
 						catch error
 							console.log("ERROR #{error}")
