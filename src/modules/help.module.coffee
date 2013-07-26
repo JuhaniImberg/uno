@@ -24,8 +24,7 @@ help = () ->
 	getInfo = (irc, what) ->
 		for i in irc.modman.loaded
 			if i.name == what
-				return i.module.info.name+": "+i.module.info.description+"
- Author: "+i.module.info.author+" (V"+i.module.info.version+")"
+				return '{name: \''+i.module.info.name+'\', description: \''+i.module.info.description+'\', author: \''+i.module.info.author+'\', version: '+i.module.info.version+'}'
 
 	o = {}
 
@@ -52,6 +51,10 @@ help = () ->
 					mods = mods.join(", ")
 					irc.respond(args, 
 						'loaded modules: '+mods)
+					irc.respond(args, 
+						'available modules: '+irc.modman.getAvailable().join(", "))
+					irc.respond(args, 
+						'disabled modules: '+irc.modman.getDisabled().join(", "))
 					irc.respond(args, 
 						'additional info: '+prefix+'info [module name]')
 					

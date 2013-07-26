@@ -19,37 +19,59 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###
 
-mui = () ->
+uno = () ->
 	o = {}
 
 	o.info = {}
-	o.info.name = "Mui."
-	o.info.description = "Responds with \"Mui.\" to people who say \"Mui.\""
+	o.info.name = "UNO management"
+	o.info.description = "UNO management services"
 	o.info.author = "Juhani Imberg"
 	o.info.version = 1	
-
-	o.lastTime = 0
-	o.hookId = -1
 	
+	o.hookId = -1
 	o.init = (irc) ->
 		o.hookId = irc.hook('PRIVMSG', (args) ->
 			msg = args.message.toLowerCase().split(" ")
-			if msg[0] == "mui."
-				now = Date.now()
-				if now - 10000 < o.lastTime
-					return
-				o.lastTime = now
-				if msg[1] == irc.config.nick
-					irc.respond(args, 'Mui. '+args.sender)
-				else if msg[1]
-					return
-				else
-					irc.respond(args, 'Mui.')
-		)
+			prefix = irc.config.commandPrefix
+			if msg[0] == prefix+"uno"
+				if irc.modman.god(args.sender)
+					msg[1] = msg[1] || ""
 
+					switch msg[1]
+						when ""
+							irc.respond(args, "Yes my master?")
+						when "reload", "r"
+							irc.respond(args, "Reloading plugins")
+							irc.modman.reloadAll()
+						when "reset", "hardreload", "hr", "hardreset"
+							irc.respond(args, "Hardreloading plugins")
+							irc.modman.hardReload()
+						when "quit", "q"
+							irc.send("QUIT Goodbye cruel world!")
+							process.exit(0);
+						when "join", "j"
+							if typeof msg[2] == "string"
+								irc.send('JOIN '+msg[2])
+						when "part", "p"
+							if typeof msg[2] == "string"
+								irc.send('PART '+msg[2])
+						when "load", "l"
+							if typeof msg[2] == "string"
+								irc.modman.load(msg[2])
+						when "disable", "d"
+							if typeof msg[2] == "string"
+								irc.modman.disable(msg[2])
+						when "enable", "e"
+							if typeof msg[2] == "string"
+								irc.modman.enable(msg[2])
+
+				else
+					irc.respond(args, 'You are not worthy of speaking directly to me')
+				
+		)
 	o.deinit = (irc) ->
 		irc.dehook(this.hookId)
 
 	return o
 
-exports.mui = new mui
+exports.uno = new uno

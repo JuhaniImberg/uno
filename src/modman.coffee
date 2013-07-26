@@ -27,6 +27,7 @@ modman = () ->
 
 	o.loaded = []
 	o.available = []
+	o.timeouts = {}
 	o.modulePath = ""
 	o.irc = null
 	o.hasInit = false
@@ -38,12 +39,15 @@ modman = () ->
 
 		fs.watch(this.modulePath, (event, filename) =>
 			delay = (ms, func) -> setTimeout func, ms
-			delay 1000, () =>
+			if typeof o.timeouts['filename'] != "undefined"
+				clearTimeout(o.timeouts['filename'])
+
+			o.timeouts['filename'] = delay 1000, () =>
 				console.log("MM.EVENT is "+event)
 				console.log("MM.FILENAME is "+filename)
 				name = filename.split(".")
 				if name[1..].join(".") == "module.js"
-					if event == "change" || event == "new"
+					if event == "change"
 						this.load(name[0])
 
 		)
@@ -86,14 +90,21 @@ modman = () ->
 			if i.name == name
 				return i
 		return null
+
+	o.god = (name) ->
+		g = this.resolveName("god")
+		if g != null
+			return g.module.auth(name)
 	
 	o.load = (name) ->
 		try
+			if this.irc.config.disabledModules.indexOf(name) != -1
+				return
+
 			if this.isLoaded(name)
 				this.reload(name)
 			else
 				pat = path.resolve(this.modulePath, name+".module.js")
-				console.log(require(pat))
 				module = require(pat)[name]
 				module.init(this.irc)
 				this.loaded.push({name: name, path: pat, module: module})
@@ -131,6 +142,18 @@ modman = () ->
 		catch error
 			console.log("ERROR #{error}")
 
+	o.disable = (name) ->
+		pos = this.irc.config.disabledModules.indexOf(name)
+		if pos == -1
+			this.irc.config.disabledModules.push(name)
+			this.unload(name)
+
+	o.enable = (name) ->
+		pos = this.irc.config.disabledModules.indexOf(name)
+		if pos != -1
+			this.irc.config.disabledModules.splice(pos, 1)
+			this.load(name)
+
 	o.getLoaded = () ->
 		tmp = []
 		for i in this.loaded
@@ -140,6 +163,9 @@ modman = () ->
 	o.getAvailable = () ->
 		this.refresh()
 		return this.available
+
+	o.getDisabled = () ->
+		return this.irc.config.disabledModules
 
 
 	return o

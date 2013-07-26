@@ -219,6 +219,17 @@ irc.handleMessage = (message) ->
 
 			irc.fire('PART', args)
 
+		when 'NOTICE'
+			who = message.prefix.split("!")[0].replace("~","").substring(1)
+			what = message.params[1]
+
+			args = {
+				who: who,
+				what: what
+			}
+
+			irc.fire('NOTICE', args)
+
 irc.loadConfig(() ->
 	irc.modman.init(irc)
 	irc.modman.loadAll()

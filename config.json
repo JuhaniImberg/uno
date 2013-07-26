@@ -4,5 +4,11 @@
 	"network": "irc.paivola.fi:6667",
 	"encoding": "utf8",
 	"autojoin": ["#uno"],
-	"commandPrefix": "-"
+	"commandPrefix": "-",
+	"disabledModules": ["url"],
+	"modules": {
+		"god": {
+			"auto": ["Juhani"]
+		}
+	}
 }

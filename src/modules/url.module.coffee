@@ -41,9 +41,7 @@ url = () ->
 			if url != null
 				url = url[0]+""
 				urlObj = irc.url.parse(url)
-				console.log(typeof urlObj.port == null)
-				if typeof urlObj.port == "undefined"
-					console.log(urlObj.protocol)
+				if typeof urlObj.port != "number"
 					if urlObj.protocol == "https:"
 						urlObj.port = 443
 					else
@@ -59,9 +57,15 @@ url = () ->
 						body = str
 						try
 							reg = /<title[^>]*>([^<]+)<\/title>/im
-							title = body.match(reg)[0]+""
-							title = title.split(">")[1]
-							title = title.split("</")[0]
+							title = body.match(reg)
+							
+							if title != null
+								title = title[0]+""
+								title = title.split(">")[1]
+								title = title.split("</")[0]
+							else
+								title = "N/A"
+
 							console.log(title)
 							irc.respond(args,
 								'{title: \''+title+'\'}'
