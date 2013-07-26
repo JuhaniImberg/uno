@@ -37,12 +37,15 @@ modman = () ->
 		this.hasInit = true
 
 		fs.watch(this.modulePath, (event, filename) =>
-			console.log("MM.EVENT is "+event)
-			console.log("MM.FILENAME is "+filename)
-			name = filename.split(".")
-			if name[1..].join(".") == "module.js"
-				if event == "change" || event == "new"
-					this.load(name[0])
+			delay = (ms, func) -> setTimeout func, ms
+			delay 1000, () =>
+				console.log("MM.EVENT is "+event)
+				console.log("MM.FILENAME is "+filename)
+				name = filename.split(".")
+				if name[1..].join(".") == "module.js"
+					if event == "change" || event == "new"
+						this.load(name[0])
+
 		)
 
 	o.refresh = () ->

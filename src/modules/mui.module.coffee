@@ -43,7 +43,7 @@ mui = () ->
 				else if msg[1]
 					return
 				else
-					irc.respond(args, 'Mui.2')
+					irc.respond(args, 'Mui.')
 		)
 	o.deinit = (irc) ->
 		irc.dehook(this.hookId)
