@@ -47,7 +47,7 @@ god = () ->
 		pos = this.pending.indexOf(name)
 		if pos == -1
 			this.pending.push(name)
-			return '{pending: ['+o.pending.join(", ")+']}'
+			return 'pending: ['+o.pending.join(", ")+']'
 			try
 				o.irc.send('PRIVMSG NickServ STATUS '+name)
 			catch error
@@ -64,7 +64,7 @@ god = () ->
 
 		if pos != -1
 			this.gods.splice(pos, 1)
-			return '{gods: ['+o.gods.join(", ")+']}'
+			return 'gods: ['+o.gods.join(", ")+']'
 		else
 			return 'not a god'
 
@@ -98,11 +98,11 @@ god = () ->
 				msg[1] = msg[1] || "list"
 				switch msg[1]
 					when ""
-						irc.respond(args, '{}')
+						irc.respond(args, '')
 					when "pending"
-						irc.respond(args, '{pending: ['+o.pending.join(", ")+']}')
+						irc.respond(args, 'pending: ['+o.pending.join(", ")+']')
 					when "list"
-						irc.respond(args, '{gods: ['+o.gods.join(", ")+']}')
+						irc.respond(args, 'gods: ['+o.gods.join(", ")+']')
 					when "add"
 						if irc.modman.god(args.sender) #if o.auth(args.sender)
 							irc.respond(args, o.add(msg[2]))

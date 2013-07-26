@@ -105,7 +105,9 @@ modman = () ->
 				this.reload(name)
 			else
 				pat = path.resolve(this.modulePath, name+".module.js")
-				module = require(pat)[name]
+				delete require.cache[pat]
+				module = require(pat)
+				module = module[name]
 				module.init(this.irc)
 				this.loaded.push({name: name, path: pat, module: module})
 				console.log("MM.LOAD "+name)

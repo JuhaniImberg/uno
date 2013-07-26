@@ -171,7 +171,7 @@ irc.socket.on('data', (data) ->
 )
 
 irc.handleMessage = (message) ->
-	console.log(message)
+	#console.log(message)
 	switch message.command
 		when 'PING'
 			this.send('PONG', ':'+message.params[0])

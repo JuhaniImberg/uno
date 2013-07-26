@@ -24,7 +24,10 @@ help = () ->
 	getInfo = (irc, what) ->
 		for i in irc.modman.loaded
 			if i.name == what
-				return '{name: \''+i.module.info.name+'\', description: \''+i.module.info.description+'\', author: \''+i.module.info.author+'\', version: '+i.module.info.version+'}'
+				return ['name: '+i.module.info.name,
+						'description: '+i.module.info.description,
+						'author: '+i.module.info.author,
+						'version: '+i.module.info.version]
 
 	o = {}
 
@@ -45,18 +48,18 @@ help = () ->
 
 				if msg[1]
 					if mods.indexOf(msg[1]) != -1
-						irc.respond(args,
-							getInfo(irc, msg[1]))
+						resp = getInfo(irc, msg[1])
+						for i in resp
+							irc.respond(args, i)
 				else
-					mods = mods.join(", ")
+					irc.respond(args,
+						'modules:')
 					irc.respond(args, 
-						'loaded modules: '+mods)
+						'    loaded: ['+mods.join(", ")+']')
 					irc.respond(args, 
-						'available modules: '+irc.modman.getAvailable().join(", "))
+						'    disabled: ['+irc.modman.getDisabled().join(", ")+']')
 					irc.respond(args, 
-						'disabled modules: '+irc.modman.getDisabled().join(", "))
-					irc.respond(args, 
-						'additional info: '+prefix+'info [module name]')
+						'info: '+prefix+'info [module name]')
 					
 					
 		)

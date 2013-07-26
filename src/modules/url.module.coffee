@@ -58,7 +58,7 @@ url = () ->
 						try
 							reg = /<title[^>]*>([^<]+)<\/title>/im
 							title = body.match(reg)
-							
+
 							if title != null
 								title = title[0]+""
 								title = title.split(">")[1]
@@ -68,7 +68,7 @@ url = () ->
 
 							console.log(title)
 							irc.respond(args,
-								'{title: \''+title+'\'}'
+								'title: '+title
 							)
 						catch error
 							console.log("ERROR #{error}")
