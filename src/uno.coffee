@@ -53,6 +53,8 @@ irc.url = url
 
 irc.config = {}
 
+irc.version = "0.1"
+
 irc.loadConfig = (callback) ->
 	config = require(path.resolve(__dirname,'..','config.json'))
 	irc.config = config
@@ -130,6 +132,9 @@ irc.send = (arg1) ->
 irc.respond = (args, message) ->
 	this.send('PRIVMSG',args.respond || args.where ,':'+message)
 
+irc.ctcp = (args, message) ->
+	this.send('NOTICE',args.respond || args.where ,':\u0001'+message+'\u0001')
+
 irc.part = (channel, message) ->
 	this.send('PART',channel,message||util.format(this.config.message.part,channel))
 
@@ -190,6 +195,8 @@ irc.handleMessage = (message) ->
 			isChannel = reciever.indexOf("#") == 0
 			respond = if isChannel then reciever else sender
 
+			isCtcp = chat.split("\u0001").length == 3
+
 			args = {
 				message: chat,
 				sender: sender,
@@ -197,13 +204,18 @@ irc.handleMessage = (message) ->
 				isChannel: isChannel,
 				prefix: message.prefix,
 				respond: respond,
+				isCtcp: isCtcp,
 
 				where: respond,
 				who: sender,
 				what: chat
 			}
 
-			irc.fire('PRIVMSG', args)
+			if isCtcp
+				args.message = args.message.split("\u0001")[1]
+				irc.fire('CTCP', args)
+			else
+				irc.fire('PRIVMSG', args)
 
 		when 'JOIN'
 			where = message.params[0]
