@@ -63,8 +63,8 @@ url = () ->
 							title = title.split(">")[1]
 							title = title.split("</")[0]
 							console.log(title)
-							irc.send('PRIVMSG', args.respond,
-								':{'+irc.colorize.escape('title','white')+': \''+unescape(title)+'\'}'
+							irc.respond(args,
+								'{title: \''+title+'\'}'
 							)
 						catch error
 							console.log("ERROR #{error}")

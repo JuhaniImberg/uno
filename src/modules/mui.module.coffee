@@ -39,11 +39,11 @@ mui = () ->
 					return
 				o.lastTime = now
 				if msg[1] == irc.config.nick
-					irc.send('PRIVMSG', args.respond, ':Mui. '+args.sender)
+					irc.respond(args, 'Mui. '+args.sender)
 				else if msg[1]
 					return
 				else
-					irc.send('PRIVMSG', args.respond, ':Mui.')
+					irc.respond(args, 'Mui.')
 		)
 	o.deinit = (irc) ->
 		irc.dehook(this.hookId)

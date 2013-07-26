@@ -166,6 +166,9 @@ irc.send = (arg1) ->
 	message = message + "\r\n"
 	this.socket.write(message, this.config.encoding)
 
+irc.respond = (args, message) ->
+	this.send('PRIVMSG',args.respond || args.where ,':'+message)
+
 irc.parse = (message) ->
 	match = message.match(/(?:(:[^\s]+) )?([^\s]+) (.+)/)
 	parsed = {prefix: match[1], command: match[2]}
@@ -223,9 +226,13 @@ irc.handleMessage = (message) ->
 				message: chat,
 				sender: sender,
 				reciever: reciever,
-				isChannel:isChannel,
+				isChannel: isChannel,
 				prefix: message.prefix,
-				respond: respond
+				respond: respond,
+
+				where: respond,
+				who: sender,
+				what: chat
 			}
 
 			irc.fire('PRIVMSG', args)

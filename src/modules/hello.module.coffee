@@ -31,7 +31,7 @@ hello = () ->
 	o.hookId = -1
 	o.init = (irc) ->
 		o.hookId = irc.hook('JOIN', (args) ->
-			irc.send('PRIVMSG', args.where, 
+			irc.respond(args, 
 				'Welcome to '+args.where+', '+args.who+'!')
 				
 		)

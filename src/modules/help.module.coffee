@@ -48,14 +48,14 @@ help = () ->
 
 				if msg[1]
 					if mods.indexOf(msg[1]) != -1
-						irc.send('PRIVMSG', args.respond,
+						irc.respond(args,
 							getInfo(irc, msg[1]))
 				else
 					mods = mods.join(", ")
-					irc.send('PRIVMSG', args.respond, 
+					irc.respond(args, 
 						'loaded modules: '+mods)
-					irc.send('PRIVMSG', args.respond, 
-						'additional info: '+prefix+'info [modules name]')
+					irc.respond(args, 
+						'additional info: '+prefix+'info [module name]')
 					
 					
 		)

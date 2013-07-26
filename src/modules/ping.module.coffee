@@ -35,9 +35,9 @@ ping = () ->
 			if msg[0] == "ping"
 				if msg[1]
 					rest = msg[1..].join(" ")
-					irc.send('PRIVMSG', args.respond, ':pong '+rest)
+					irc.respond(args, 'pong '+rest)
 				else
-					irc.send('PRIVMSG', args.respond, ':pong')
+					irc.respond(args, 'pong')
 		)
 	o.deinit = (irc) ->
 		irc.dehook(this.hookId)
