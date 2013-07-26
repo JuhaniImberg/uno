@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 help = () ->
 
 	getInfo = (irc, what) ->
-		for i in irc.modules
+		for i in irc.modman.loaded
 			if i.name == what
 				return i.module.info.name+": "+i.module.info.description+"
  Author: "+i.module.info.author+" (V"+i.module.info.version+")"
@@ -42,9 +42,7 @@ help = () ->
 			prefix = irc.config.commandPrefix
 			if msg[0] == prefix+"help" || msg[0] == prefix+"info"
 
-				mods = []
-				for i in irc.modules
-					mods.push(i.name)
+				mods = irc.modman.getLoaded()
 
 				if msg[1]
 					if mods.indexOf(msg[1]) != -1

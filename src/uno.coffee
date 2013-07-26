@@ -19,14 +19,18 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###
 
+# native
 net = require("net")
 sys = require("sys")
 fs = require("fs")
 path = require("path")
-colorize = require("./colorize.js")['colorize']
 http = require("http")
 https = require("https")
 url = require("url")
+
+# uno
+colorize = require("./colorize.js")['colorize']
+modman = require("./modman.js")['modman']
 
 stdin = process.openStdin()
 
@@ -40,6 +44,7 @@ stdin.addListener("data", (d) ->
 
 irc = {buffer: "", hooks: [], hid: 0}
 
+irc.modman = modman
 irc.colorize = colorize
 irc.http = http
 irc.https = https
@@ -53,7 +58,7 @@ irc.loadConfig = (callback) ->
 	irc.config.modulePath = path.resolve(__dirname,'modules')
 	callback()
 
-
+###
 irc.modules = []
 
 irc.loadAllModules = () ->
@@ -95,6 +100,7 @@ irc.reloadModules = () ->
 			console.log("RELOADED MODULE "+i.name)
 		catch error
 			console.log("ERROR #{error}")	
+###
 
 irc.hook = (action, callback) ->
 	this.hooks.push({callback: callback, action: action, hookId: ++irc.hid})
@@ -129,17 +135,15 @@ irc.command = (com) ->
 		when 'c', 'reconnect', 'connect'
 			irc.connect()
 		when 'r', 'reload', 'reloadmodules'
-			irc.reloadModules()
+			irc.modman.reloadAll()
 		when 'name', 'nick', 'rename', 'renick'
 			irc.name(args[0])
 		when 'load', 'l'
-			irc.loadModule(args[0])
+			irc.modman.load(args[0])
 		when 'join', 'j'
 			irc.send('JOIN',args[0])
 		when 'hr', 'hardreset'
-			irc.modules = []
-			irc.hooks = []
-			irc.loadAllModules()
+			irc.modman.hardReload()
 
 irc.name = (newName) ->
 	this.send('NICK '+newName)
@@ -260,6 +264,7 @@ irc.handleMessage = (message) ->
 			irc.fire('PART', args)
 
 irc.loadConfig(() ->
-	irc.loadAllModules()
+	irc.modman.init(irc)
+	irc.modman.loadAll()
 	irc.connect()
 )
