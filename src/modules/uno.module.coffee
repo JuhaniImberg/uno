@@ -47,14 +47,12 @@ uno = () ->
 							irc.respond(args, "Hardreloading plugins")
 							irc.modman.hardReload()
 						when "quit", "q"
-							irc.send("QUIT Goodbye cruel world!")
-							process.exit(0);
+							irc.quit(msg[2])
 						when "join", "j"
 							if typeof msg[2] == "string"
 								irc.send('JOIN '+msg[2])
 						when "part", "p"
-							if typeof msg[2] == "string"
-								irc.send('PART '+msg[2])
+							irc.part(msg[2]||args.reciever,msg[3])
 						when "load", "l"
 							if typeof msg[2] == "string"
 								irc.modman.load(msg[2])

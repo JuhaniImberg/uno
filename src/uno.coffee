@@ -27,6 +27,7 @@ path = require("path")
 http = require("http")
 https = require("https")
 url = require("url")
+util = require("util")
 
 # uno
 colorize = require("./colorize.js")['colorize']
@@ -129,6 +130,13 @@ irc.send = (arg1) ->
 irc.respond = (args, message) ->
 	this.send('PRIVMSG',args.respond || args.where ,':'+message)
 
+irc.part = (channel, message) ->
+	this.send('PART',channel,message||util.format(this.config.message.part,channel))
+
+irc.quit = (message) ->
+	this.send('QUIT',message||this.config.message.quit)
+	process.exit(0)
+
 irc.parse = (message) ->
 	match = message.match(/(?:(:[^\s]+) )?([^\s]+) (.+)/)
 	parsed = {prefix: match[1], command: match[2]}
@@ -171,7 +179,7 @@ irc.socket.on('data', (data) ->
 )
 
 irc.handleMessage = (message) ->
-	#console.log(message)
+	console.log(message)
 	switch message.command
 		when 'PING'
 			this.send('PONG', ':'+message.params[0])
@@ -229,6 +237,37 @@ irc.handleMessage = (message) ->
 			}
 
 			irc.fire('NOTICE', args)
+
+		when 'INVITE'
+			who = message.prefix.split("!")[0].replace("~","").substring(1)
+			where = message.params[1]
+
+			args = {
+				who: who,
+				where: where
+			}
+
+			irc.fire('INVITE', args)
+
+		when 'MODE'
+			if message.prefix.substring(1) == irc.config.nick
+				who = undefined
+			else
+				who = message.prefix.split("!")[0].replace("~","").substring(1)
+			mode = message.params[1]
+			if message.params.length == 3
+				where = message.params[0]
+			else
+				where = undefined
+
+			args = {
+				who: who,
+				where: where,
+				mode: mode
+			}
+
+			irc.fire('MODE', args)
+
 
 irc.loadConfig(() ->
 	irc.modman.init(irc)

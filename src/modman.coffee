@@ -43,8 +43,8 @@ modman = () ->
 				clearTimeout(o.timeouts['filename'])
 
 			o.timeouts['filename'] = delay 1000, () =>
-				console.log("MM.EVENT is "+event)
-				console.log("MM.FILENAME is "+filename)
+				#console.log("MM.EVENT is "+event)
+				#console.log("MM.FILENAME is "+filename)
 				name = filename.split(".")
 				if name[1..].join(".") == "module.js"
 					if event == "change"
@@ -110,7 +110,7 @@ modman = () ->
 				module = module[name]
 				module.init(this.irc)
 				this.loaded.push({name: name, path: pat, module: module})
-				console.log("MM.LOAD "+name)
+				console.log("| +"+name)
 
 				if this.available.indexOf(name) == -1
 					this.available.push(name)
@@ -126,7 +126,7 @@ modman = () ->
 				i.module.deinit(this.irc)
 				delete require.cache[i.path]
 				this.loaded.splice(pos, 1)
-				console.log("MM.UNLOAD "+name)
+				console.log("| -"+name)
 		catch error
 			console.log("ERROR #{error}")
 

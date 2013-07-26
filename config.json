@@ -5,6 +5,10 @@
 	"encoding": "utf8",
 	"autojoin": ["#uno"],
 	"commandPrefix": "-",
+	"message": {
+		"part": "bye %s",
+		"quit": "goodbye cruel world"
+	},
 	"disabledModules": ["url"],
 	"modules": {
 		"god": {

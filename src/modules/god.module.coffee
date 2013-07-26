@@ -33,6 +33,9 @@ god = () ->
 
 	o.hookId1 = -1
 	o.hookId2 = -1
+	o.hookId3 = -1
+
+	o.firstFire = false
 
 	o.irc = null
 
@@ -47,10 +50,12 @@ god = () ->
 		pos = this.pending.indexOf(name)
 		if pos == -1
 			this.pending.push(name)
-			return 'pending: ['+o.pending.join(", ")+']'
 			try
 				o.irc.send('PRIVMSG NickServ STATUS '+name)
 			catch error
+			finally
+				console.log("| pending "+name)
+				return 'pending: ['+o.pending.join(", ")+']'
 
 		else
 			return 'already pending'
@@ -89,7 +94,7 @@ god = () ->
 
 		for i in irc.config.modules.god.auto||[]
 			o.add(i)
-		o.refresh()
+		#o.refresh()
 
 		o.hookId1 = irc.hook('PRIVMSG', (args) ->
 			msg = args.message.toLowerCase().split(" ")
@@ -128,15 +133,26 @@ god = () ->
 					if msg[2] == "3"
 						o.pending.splice(pos, 1)
 						o.gods.push(msg[1])
+						console.log("| god "+msg[1])
 				else
 					if msg[2] != "3"
 						o.gods.splice(pos, 1)
 						o.pending.push(msg[1])
+						console.log("| pending "+msg[1])
+		)
+
+		o.hookId3 = irc.hook('MODE', (args) ->
+			if typeof args.where == "undefined" && typeof args.who == "undefined"
+				if o.firstFire == false
+					o.refresh()
+					o.firstFire = true
+
 		)
 
 	o.deinit = (irc) ->
 		irc.dehook(this.hookId1)
 		irc.dehook(this.hookId2)
+		irc.dehook(this.hookId3)
 
 	return o
 
