@@ -1,20 +1,24 @@
 class Base_Module
 	constructor: (@uno, @config) ->
+		@loaded_hooks = []
 	about: () ->
 		@info
 
 	load: () ->
-		for i in @hooks
-			if i
-				if i.once
-					@uno.once i.event, (data) => i.callback(@, data)
-				else
-					@uno.on i.event, (data) => i.callback(@, data)
+		if @hooks
+			for i in @hooks
+				if i
+					callback = (data) => i.callback(@, data)
+					if i.once
+						@uno.once i.event, callback
+					else
+						@uno.on i.event, callback
+					@loaded_hooks.push {event: i.event, callback: callback}
 
 		@uno.log '+', @info.name+' ('+@info.version+')'
 
 	unload: () ->
-		for i in @hooks
+		for i in @loaded_hooks
 			if i
 				@uno.removeListener i.event, i.callback
 

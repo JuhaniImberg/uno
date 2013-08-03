@@ -11,15 +11,17 @@ class Command extends Base_Module
 
 		if message[0].indexOf(config.prefix) == 0
 			args =
+				command_prefix: config.prefix
 				command: message[0].substring 1
 				arguments: message[1..]
-				sender: data.prefix.split('!')[0].replace('~','').substring[1]
+				sender: data.prefix.split('!')[0].replace('~','').substring(1)
 				reciever: data.params[0]
 				is_channel: data.params[0].indexOf('#') == 0
 				is_ctcp: data.params[1].split('\u0001').length == 3
+				respond: if data.params[0].indexOf('#') == 0 then data.params[0] else data.prefix.split('!')[0].replace('~','').substring(1)
 
-			uno.emit 'COMMAND', args
-			uno.emit 'COMMAND.'+args.command, args
+			uno.emit 'command', args
+			uno.emit 'command.'+args.command, args
 
 	info:
 		name: "command",

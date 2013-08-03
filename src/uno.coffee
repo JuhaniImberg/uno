@@ -1,6 +1,7 @@
 {EventEmitter} = require 'events'
 net = require 'net'
 path = require 'path'
+fs = require 'fs'
 
 class UNO extends EventEmitter
 	constructor: (@config) ->
@@ -8,6 +9,7 @@ class UNO extends EventEmitter
 		@emit 'init'
 		@buffer = ""
 		@modules = []
+		@firstload = true
 
 		@info 'you are rocking uno version '+@version
 		@info 'connecting to '+@config.host+':'+@config.port
@@ -49,6 +51,9 @@ class UNO extends EventEmitter
 		@log '<', message
 		@socket.write message+'\r\n', @config.encoding
 
+	respond: (data, message) ->
+		@send 'PRIVMSG', data.respond, ':'+message
+
 	parse: (data) ->
 		m = data.match /(?:(:[^\s]+) )?([^\s]+) (.+)/
 		params = m[3].match /(.*?) ?:(.*)/
@@ -78,21 +83,59 @@ class UNO extends EventEmitter
 					return i
 		null
 
+	get_loaded: () ->
+		tmp = []
+		for i in @modules
+			if i
+				tmp.push i.name
+		tmp
+
+	load_all: () ->
+		fs.readdir path.resolve(__dirname, 'modules'), (err, files) =>
+			for i in files
+				name = i.split(".")[0]
+				extension = i.split(".")[1]
+				if extension == "coffee"
+					@load name
+			@firstload = false
+
+	dynamic_load: () ->
+		@timeouts = {}
+		fs.watch path.resolve(__dirname, 'modules'), (event, filename) =>
+			delay = (ms, func) -> setTimeout func, ms
+
+			if typeof @timeouts[filename] != "undefined"
+				clearTimeout @timeouts[filename]
+				delete @timeouts[filename]
+
+			@timeouts[filename] = delay 1000, () =>
+				name = filename.split(".")[0]
+				extension = filename.split(".")[1]
+
+				if extension == "coffee"
+					@load name
+
 	load: (name) ->
 		try
+			if name == "base_module"
+				return
 			module_info = @get_module name
-			if module_info != null
+			if module_info != null and not @firstload
 				@unload name
+			else if module_info != null and @firstload
+				return
 			module_path = path.resolve __dirname, 'modules', name+'.coffee'
 			delete require.cache[module_path]
 			module_object = require module_path
 
 			module_itself = new module_object @, if @config.modules[name] then @config.modules[name] else {}
 
-			for i in module_itself.info.depends
-				tmp = @get_module i
-				if tmp == null
-					@load i
+			if module_itself.info
+				for i in module_itself.info.depends
+					tmp = @get_module i
+					if tmp == null
+						@load i
+
 
 			module_itself.load()
 
@@ -103,7 +146,7 @@ class UNO extends EventEmitter
 			@modules.push module_info
 
 		catch e
-			@error e
+			@error 'load: '+e
 
 	unload: (name) ->
 		try
@@ -117,7 +160,7 @@ class UNO extends EventEmitter
 				@modules.splice pos, 1
 
 		catch e
-			@error e
+			@error 'unload: '+e
 
 p2 = (i) -> if (i+'').length == 1 then '0'+i else i
 

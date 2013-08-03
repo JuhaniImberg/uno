@@ -6,8 +6,12 @@ config = require '../config.json'
 
 uno = new UNO config
 
-uno.load 'nick'
-uno.load 'ping'
-uno.load 'autojoin'
-uno.load 'command'
-uno.load 'auth'
+#uno.load 'nick'
+#uno.load 'ping'
+#uno.load 'autojoin'
+#uno.load 'command'
+#uno.load 'auth'
+#uno.load 'help'
+
+uno.load_all()
+uno.dynamic_load()
