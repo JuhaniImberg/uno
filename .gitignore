@@ -1,2 +1,2 @@
-/src/*.js
-/src/modules/*.js
+node_modules
+*.js

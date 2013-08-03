@@ -1,18 +1,22 @@
 {
-	"nick": "uno",
-	"realname": "Uno Not One",
-	"network": "irc.paivola.fi:6667",
+	"host": "irc.paivola.fi",
+	"port": "6667",
 	"encoding": "utf8",
-	"autojoin": ["#uno"],
-	"commandPrefix": "-",
-	"message": {
-		"part": "bye %s",
-		"quit": "goodbye cruel world"
-	},
-	"disabledModules": ["url"],
+
 	"modules": {
-		"god": {
-			"auto": ["Juhani"]
+		"autojoin": {
+			"channels": ["#uno"]
+		},
+		"nick": {
+			"nick": "uno",
+			"realname": "Uno Not One"
+		},
+		"auth": {
+			"admins": ["Juhani"]
+		},
+		"command": {
+			"prefix": "-"
 		}
 	}
+
 }

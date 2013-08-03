@@ -1,0 +1,14 @@
+{
+	"name": "uno",
+	"version": "2.0.0-git",
+	"author": "Juhani Imberg",
+	"private": true,
+	"description": "irc bot",
+	"dependencies": {
+		"coffee-script": "",
+		"optparse": ""
+	},
+	"bin": {
+		"uno": "./bin/uno"
+	}
+}

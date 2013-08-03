@@ -1,0 +1,13 @@
+#!/usr/bin/env coffee
+
+UNO = require '../src/uno'
+fs = require 'fs'
+config = require '../config.json'
+
+uno = new UNO config
+
+uno.load 'nick'
+uno.load 'ping'
+uno.load 'autojoin'
+uno.load 'command'
+uno.load 'auth'
