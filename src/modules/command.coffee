@@ -22,6 +22,7 @@ class Command extends Base_Module
 
 			uno.emit 'command', args
 			uno.emit 'command.'+args.command, args
+			uno.info 'command.'+args.command+' '+args.arguments.join ' '
 
 	info:
 		name: "command",

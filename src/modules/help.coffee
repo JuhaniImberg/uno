@@ -1,7 +1,8 @@
 Base_Module = require './base_module'
 
 class Help extends Base_Module
-	hooks: [{event: 'command.help', callback: (self, data) -> process(self, data)}]
+	hooks: [{event: 'command.help', callback: (self, data) -> process(self, data)},
+			{event: 'command.info', callback: (self, data) -> process(self, data)}]
 	
 	process = (self, data) ->
 		uno = self.uno
@@ -10,7 +11,7 @@ class Help extends Base_Module
 		if data.arguments.length == 0
 			uno.respond data, 'uno version: '+uno.version
 			uno.respond data, 'modules: '+uno.get_loaded().join(", ")
-			uno.respond data, 'additional info: '+data.command_prefix+'help [module name]'
+			uno.respond data, 'additional info: '+data.command_prefix+'info [module name]'
 		else
 			module_info = uno.get_module data.arguments[0]
 			if module_info

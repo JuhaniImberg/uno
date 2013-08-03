@@ -15,14 +15,14 @@ class Base_Module
 						@uno.on i.event, callback
 					@loaded_hooks.push {event: i.event, callback: callback}
 
-		@uno.log '+', @info.name+' ('+@info.version+')'
+		@uno.log '+', @info.name+' ('+@loaded_hooks.length+' hooks)'
 
 	unload: () ->
 		for i in @loaded_hooks
 			if i
 				@uno.removeListener i.event, i.callback
 
-		@uno.log '-', @info.name+' ('+@info.version+')'
+		@uno.log '-', @info.name+' ('+@loaded_hooks.length+' hooks)'
 
 
 
